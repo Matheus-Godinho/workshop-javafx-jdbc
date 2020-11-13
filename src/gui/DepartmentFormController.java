@@ -56,24 +56,28 @@ public class DepartmentFormController implements Initializable {
 	
 	@FXML
 	public void onButtonSaveAction(ActionEvent event) {
-		if (entity == null)
-			Alerts.showAlert("Illegal State Exception", "Error in saving department",
-					"Entity was null", AlertType.ERROR);
-		if (service == null)
-			Alerts.showAlert("Illegal State Exception", "Error in saving department",
-					"Service was null", AlertType.ERROR);
-		try {
-			entity = getFormData();
-			service.saveOrUpdate(entity);
-			notifyDataChangeListeners();
-			Utils.currentStage(event).close();
+		if (entity == null || service == null) {
+			if (entity == null)
+				Alerts.showAlert("Illegal State Exception", "Error in saving department",
+						"Entity was null", AlertType.ERROR);
+			if (service == null)
+				Alerts.showAlert("Illegal State Exception", "Error in saving department",
+						"Service was null", AlertType.ERROR);
 		}
-		catch (ValidationException e) {
-			setErrorMessages(e.getErrors());
-		}
-		catch (DbException e) {
-			Alerts.showAlert("Database Exception", "Error in saving department",
-					e.getMessage(), AlertType.ERROR);
+		else {
+			try {
+				entity = getFormData();
+				service.saveOrUpdate(entity);
+				notifyDataChangeListeners();
+				Utils.currentStage(event).close();
+			}
+			catch (ValidationException e) {
+				setErrorMessages(e.getErrors());
+			}
+			catch (DbException e) {
+				Alerts.showAlert("Database Exception", "Error in saving department",
+						e.getMessage(), AlertType.ERROR);
+			}
 		}
 	}
 	@FXML
@@ -108,8 +112,10 @@ public class DepartmentFormController implements Initializable {
 		if (entity == null)
 			Alerts.showAlert("Illegal State Exception", "Error in updating form data",
 					"Entity was null", AlertType.ERROR);
-		txtId.setText(String.valueOf(entity.getId()));
-		txtName.setText(entity.getName());
+		else {
+			txtId.setText(String.valueOf(entity.getId()));
+			txtName.setText(entity.getName());
+		}
 	}
 	
 	private void notifyDataChangeListeners() {
