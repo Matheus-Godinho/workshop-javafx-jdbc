@@ -9,6 +9,7 @@ import application.Main;
 import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Utils;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,6 +17,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.Scene;
@@ -44,6 +46,8 @@ public class DepartmentListController implements Initializable, DataChangeListen
 		private TableColumn<Department, Integer> tableColumnId;
 		@FXML
 		private TableColumn<Department, String> tableColumnName;
+		@FXML
+		private TableColumn<Department, Department> tableColumnEDIT;
 	
 	@FXML
 	public void onButtonNewAction(ActionEvent event) {
@@ -78,11 +82,31 @@ public class DepartmentListController implements Initializable, DataChangeListen
 			list = service.findAll();
 			obsList = FXCollections.observableArrayList(list);
 			tableViewDepartment.setItems(obsList);
+			initEditButtons();
 		}
 	}
 	@Override
 	public void onDataChanged() {
 		updateTableView();
+	}
+	
+	private void initEditButtons() {
+		tableColumnEDIT.setCellValueFactory(parameter -> new ReadOnlyObjectWrapper<>(parameter.getValue()));
+		tableColumnEDIT.setCellFactory(parameter -> new TableCell<Department, Department>() {
+			private final Button button = new Button("Edit");
+			
+			@Override
+			protected void updateItem(Department department, boolean empty) {
+				super.updateItem(department, empty);
+				if (department == null) {
+					setGraphic(null);
+					return;
+				}
+				setGraphic(button);
+				button.setOnAction(event -> createDialogForm("/gui/DepartmentForm.fxml",
+						department, Utils.currentStage(event)));
+			}
+		});
 	}
 	
 	private void createDialogForm(String absoluteName, Department department, Stage parentStage) {
